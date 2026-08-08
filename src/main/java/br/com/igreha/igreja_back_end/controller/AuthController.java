@@ -2,7 +2,7 @@ package br.com.igreha.igreja_back_end.controller;
 
 import br.com.igreha.igreja_back_end.dto.user.LoginRequestDTO;
 import br.com.igreha.igreja_back_end.dto.user.LoginResponseDTO;
-import br.com.igreha.igreja_back_end.service.AuthService;
+import br.com.igreha.igreja_back_end.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

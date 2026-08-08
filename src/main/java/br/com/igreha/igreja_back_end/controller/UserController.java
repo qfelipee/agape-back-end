@@ -4,7 +4,8 @@ import br.com.igreha.igreja_back_end.dto.user.UserRegisterRequestDTO;
 import br.com.igreha.igreja_back_end.dto.user.UserResponseDTO;
 import br.com.igreha.igreja_back_end.dto.user.UserUpdateRequestDTO;
 import br.com.igreha.igreja_back_end.entity.user.User;
-import br.com.igreha.igreja_back_end.service.UserService;
+import br.com.igreha.igreja_back_end.mapper.user.UserMapper;
+import br.com.igreha.igreja_back_end.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> register(@RequestBody @Valid UserRegisterRequestDTO request) {
@@ -54,5 +56,10 @@ public class UserController {
             @AuthenticationPrincipal User usuarioLogado
     ) {
         return ResponseEntity.ok(userService.findById(id, usuarioLogado));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> me(@AuthenticationPrincipal User usuarioLogado) {
+        return ResponseEntity.ok(userMapper.toResponseDTO(usuarioLogado));
     }
 }

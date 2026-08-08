@@ -77,4 +77,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedCustomException ex) {
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
+    @ExceptionHandler(LancamentoNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleLancamentoNotFound(LancamentoNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 }

@@ -1,4 +1,4 @@
-package br.com.igreha.igreja_back_end.mapper;
+package br.com.igreha.igreja_back_end.mapper.user;
 
 import br.com.igreha.igreja_back_end.dto.user.UserResponseDTO;
 import br.com.igreha.igreja_back_end.entity.user.User;

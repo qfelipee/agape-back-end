@@ -1,4 +1,4 @@
-package br.com.igreha.igreja_back_end.service;
+package br.com.igreha.igreja_back_end.service.auth;
 
 import br.com.igreha.igreja_back_end.dto.user.LoginRequestDTO;
 import br.com.igreha.igreja_back_end.dto.user.LoginResponseDTO;

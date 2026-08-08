@@ -3,6 +3,7 @@ package br.com.igreha.igreja_back_end.entity.lancamento;
 
 import br.com.igreha.igreja_back_end.entity.user.User;
 import br.com.igreha.igreja_back_end.enums.lancamento.Tipo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class Lancamento {
     @Column(length = 45)
     private String formaPagamento;
 
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime dtHoraLancado;

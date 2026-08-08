@@ -31,3 +31,20 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven wrapper (opcional manter, mas geralmente versiona)
+# .mvn/
+
+# Application properties com dados sensíveis (se você criar um específico local)
+application-local.properties
+application-secrets.properties
+
+# Arquivos temporários
+*.tmp

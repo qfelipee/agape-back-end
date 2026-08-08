@@ -2,9 +2,8 @@ package br.com.igreha.igreja_back_end.repository.lancamento;
 
 import br.com.igreha.igreja_back_end.entity.lancamento.Lancamento;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface LancamentoRepository extends JpaRepository<Lancamento,Integer> {
-
-
-
+public interface LancamentoRepository extends JpaRepository<Lancamento, Integer>,
+        JpaSpecificationExecutor<Lancamento> {
 }

@@ -1,4 +1,4 @@
-package br.com.igreha.igreja_back_end.service;
+package br.com.igreha.igreja_back_end.service.user;
 
 import br.com.igreha.igreja_back_end.dto.user.UserRegisterRequestDTO;
 import br.com.igreha.igreja_back_end.dto.user.UserResponseDTO;
@@ -7,7 +7,7 @@ import br.com.igreha.igreja_back_end.entity.user.User;
 import br.com.igreha.igreja_back_end.exception.AccessDeniedCustomException;
 import br.com.igreha.igreja_back_end.exception.EmailAlreadyExistsException;
 import br.com.igreha.igreja_back_end.exception.UserNotFoundException;
-import br.com.igreha.igreja_back_end.mapper.UserMapper;
+import br.com.igreha.igreja_back_end.mapper.user.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class UserService {
     public UserResponseDTO update(Integer id, UserUpdateRequestDTO request, User usuarioLogado) {
         // Só o próprio usuário (ou um ADMIN) pode atualizar
         boolean isDono = usuarioLogado.getId().equals(id);
-        boolean isAdmin = usuarioLogado.getRole().name().equals("ADMIN");
+        boolean isAdmin = usuarioLogado.getRole().name().equals("PASTOR");
 
         if (!isDono && !isAdmin) {
             throw new AccessDeniedCustomException("Você só pode atualizar seu próprio perfil");
@@ -84,7 +84,7 @@ public class UserService {
 
     public UserResponseDTO findById(Integer id, User usuarioLogado) {
         boolean isDono = usuarioLogado.getId().equals(id);
-        boolean isAdmin = usuarioLogado.getRole().name().equals("ADMIN");
+        boolean isAdmin = usuarioLogado.getRole().name().equals("PASTOR");
 
         if (!isDono && !isAdmin) {
             throw new AccessDeniedCustomException("Você só pode visualizar seu próprio perfil");

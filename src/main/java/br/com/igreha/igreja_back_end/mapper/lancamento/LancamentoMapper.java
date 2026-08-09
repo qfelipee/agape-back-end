@@ -15,8 +15,8 @@ public class LancamentoMapper {
                 lancamento.getValor(),
                 lancamento.getFormaPagamento(),
                 lancamento.getDtHoraLancado(),
-                lancamento.getUser().getId(),
-                lancamento.getUser().getNome()
+                lancamento.getUser() != null ? lancamento.getUser().getId() : null,
+                lancamento.getUser() != null ? lancamento.getUser().getNome() : "Usuário excluído"
         );
     }
 }

@@ -9,10 +9,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import br.com.igreha.igreja_back_end.repository.user.UserRepository;
 
 import java.io.IOException;
 
@@ -21,7 +22,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -32,31 +33,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // Se não tem header, ou não começa com "Bearer ", deixa passar (rota pode ser pública)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7); // remove o "Bearer " do início
-        final String userEmail = jwtService.extractUsername(jwt);
+        final String jwt = authHeader.substring(7);
 
-        // Se conseguiu extrair o email E ainda não tem ninguém autenticado nessa requisição
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            final Integer userId = jwtService.extractUserId(jwt);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UserDetails userDetails = userRepository.findById(userId)
+                        .orElse(null);
 
-                // Registra o usuário como autenticado pra essa requisição
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (userDetails != null && jwtService.isTokenValid(jwt, userId)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception ignored) {
+            // token inválido/expirado — deixa passar sem autenticar, rotas protegidas vão barrar depois
         }
 
         filterChain.doFilter(request, response);

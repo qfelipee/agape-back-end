@@ -24,22 +24,23 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(Integer userId) {
         return Jwts.builder()
-                .subject(userDetails.getUsername()) // email do usuário
+                .subject(userId.toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Integer extractUserId(String token) {
+        String subject = extractClaim(token, Claims::getSubject);
+        return Integer.valueOf(subject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, Integer userId) {
+        Integer idNoToken = extractUserId(token);
+        return idNoToken.equals(userId) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

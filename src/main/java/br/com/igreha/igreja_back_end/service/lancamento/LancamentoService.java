@@ -78,11 +78,16 @@ public class LancamentoService {
     }
 
     private void validarDonoOuPastor(Lancamento lancamento, User usuarioLogado) {
-        boolean isDono = lancamento.getUser().getId().equals(usuarioLogado.getId());
+
         boolean isPastor = usuarioLogado.getRole().name().equals("PASTOR");
 
+        boolean isDono = lancamento.getUser() != null
+                && lancamento.getUser().getId().equals(usuarioLogado.getId());
+
         if (!isDono && !isPastor) {
-            throw new AccessDeniedCustomException("Você só pode editar/excluir seus próprios lançamentos");
+            throw new AccessDeniedCustomException(
+                    "Você só pode editar/excluir seus próprios lançamentos"
+            );
         }
     }
     public DashboardDTO getDashboard() {

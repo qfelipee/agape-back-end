@@ -37,11 +37,7 @@ public class LancamentoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<List<LancamentoResponseDTO>> listAll() {
-        return ResponseEntity.ok(lancamentoService.listAll());
-    }
-
+    
     @GetMapping("/{id}")
     public ResponseEntity<LancamentoResponseDTO> findById(@PathVariable Integer id) {
         return ResponseEntity.ok(lancamentoService.findById(id));

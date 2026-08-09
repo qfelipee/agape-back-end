@@ -90,32 +90,42 @@ public class LancamentoService {
             );
         }
     }
-    public DashboardDTO getDashboard() {
+    public DashboardDTO getDashboard(Integer mes, Integer ano) {
         List<Lancamento> todos = lancamentoRepository.findAll();
 
-        // KPIs
-        BigDecimal totalEntradas = todos.stream()
+        // Filtra pelo período, se informado
+        List<Lancamento> filtrados = todos;
+        if (mes != null && ano != null) {
+            filtrados = todos.stream()
+                    .filter(l -> l.getDtHoraLancado().getMonthValue() == mes
+                            && l.getDtHoraLancado().getYear() == ano)
+                    .toList();
+        } else if (ano != null) {
+            filtrados = todos.stream()
+                    .filter(l -> l.getDtHoraLancado().getYear() == ano)
+                    .toList();
+        }
+
+        // KPIs (respeitam o filtro)
+        BigDecimal totalEntradas = filtrados.stream()
                 .filter(l -> l.getTipo() == Tipo.ENTRADA)
                 .map(Lancamento::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal totalSaidas = todos.stream()
+        BigDecimal totalSaidas = filtrados.stream()
                 .filter(l -> l.getTipo() == Tipo.SAIDA)
                 .map(Lancamento::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal saldoFinal = totalEntradas.subtract(totalSaidas);
-
         ResumoFinanceiroDTO resumo = new ResumoFinanceiroDTO(totalEntradas, totalSaidas, saldoFinal);
 
-        // Evolução mensal
+        // Evolução mensal - SEMPRE últimos 6 meses, ignora filtro
         Map<String, BigDecimal[]> porMes = new TreeMap<>();
         for (Lancamento l : todos) {
             String chave = l.getDtHoraLancado().getYear() + "-" +
                     String.format("%02d", l.getDtHoraLancado().getMonthValue());
-
             porMes.putIfAbsent(chave, new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO});
-
             if (l.getTipo() == Tipo.ENTRADA) {
                 porMes.get(chave)[0] = porMes.get(chave)[0].add(l.getValor());
             } else {
@@ -124,21 +134,33 @@ public class LancamentoService {
         }
 
         List<EvolucaoMensalDTO> evolucaoMensal = porMes.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .skip(Math.max(0, porMes.size() - 6))
                 .map(e -> new EvolucaoMensalDTO(e.getKey(), e.getValue()[0], e.getValue()[1]))
                 .toList();
 
-        // Distribuição por forma de pagamento
-        Map<String, BigDecimal> porFormaPagamento = new HashMap<>();
-        for (Lancamento l : todos) {
+        // Distribuição por forma de pagamento - respeita o filtro, separado entrada/saída
+        Map<String, BigDecimal> entradasPorForma = new HashMap<>();
+        Map<String, BigDecimal> saidasPorForma = new HashMap<>();
+
+        for (Lancamento l : filtrados) {
             String forma = l.getFormaPagamento() != null ? l.getFormaPagamento() : "Não informado";
-            porFormaPagamento.merge(forma, l.getValor(), BigDecimal::add);
+            if (l.getTipo() == Tipo.ENTRADA) {
+                entradasPorForma.merge(forma, l.getValor(), BigDecimal::add);
+            } else {
+                saidasPorForma.merge(forma, l.getValor(), BigDecimal::add);
+            }
         }
 
-        List<FormaPagamentoDTO> distribuicao = porFormaPagamento.entrySet().stream()
+        List<FormaPagamentoDTO> distribuicaoEntradas = entradasPorForma.entrySet().stream()
                 .map(e -> new FormaPagamentoDTO(e.getKey(), e.getValue()))
                 .toList();
 
-        return new DashboardDTO(resumo, evolucaoMensal, distribuicao);
+        List<FormaPagamentoDTO> distribuicaoSaidas = saidasPorForma.entrySet().stream()
+                .map(e -> new FormaPagamentoDTO(e.getKey(), e.getValue()))
+                .toList();
+
+        return new DashboardDTO(resumo, evolucaoMensal, distribuicaoEntradas, distribuicaoSaidas);
     }
     public Page<LancamentoResponseDTO> listPaginado(Tipo tipo, LocalDateTime dataInicio, LocalDateTime dataFim, Pageable pageable) {
         Specification<Lancamento> spec = LancamentoSpecification.comFiltros(tipo, dataInicio, dataFim);

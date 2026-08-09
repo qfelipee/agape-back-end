@@ -44,6 +44,6 @@ public class Lancamento {
     private LocalDateTime dtHoraLancado;
 
     @ManyToOne
-    @JoinColumn(name = "fkUser", nullable = true)
+    @JoinColumn(name = "fk_user", nullable = true)
     private User user;
 }

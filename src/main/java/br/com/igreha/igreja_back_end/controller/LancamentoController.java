@@ -63,10 +63,12 @@ public class LancamentoController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<DashboardDTO> getDashboard() {
-        return ResponseEntity.ok(lancamentoService.getDashboard());
+    public ResponseEntity<DashboardDTO> getDashboard(
+            @RequestParam(required = false) Integer mes,
+            @RequestParam(required = false) Integer ano
+    ) {
+        return ResponseEntity.ok(lancamentoService.getDashboard(mes, ano));
     }
-
     @GetMapping
     public ResponseEntity<Page<LancamentoResponseDTO>> listAll(
             @RequestParam(required = false) Tipo tipo,

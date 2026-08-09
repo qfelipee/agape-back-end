@@ -70,7 +70,11 @@ public class UserService {
         return userMapper.toResponseDTO(atualizado);
     }
 
-    public void delete(Integer id) {
+    public void delete(Integer id, User usuarioLogado) {
+        if (usuarioLogado.getId().equals(id)) {
+            throw new AccessDeniedCustomException("Você não pode excluir seu próprio usuário");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
         userRepository.delete(user);

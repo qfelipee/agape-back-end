@@ -40,8 +40,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        userService.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal User usuarioLogado
+    ) {
+        userService.delete(id, usuarioLogado);
         return ResponseEntity.noContent().build();
     }
 

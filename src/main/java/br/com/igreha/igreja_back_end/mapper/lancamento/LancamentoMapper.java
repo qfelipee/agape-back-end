@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 public class LancamentoMapper {
 
     public LancamentoResponseDTO toResponseDTO(Lancamento lancamento) {
+        boolean usuarioExiste = lancamento.getUser() != null;
+
         return new LancamentoResponseDTO(
                 lancamento.getId(),
                 lancamento.getTipo().name(),
@@ -15,8 +17,10 @@ public class LancamentoMapper {
                 lancamento.getValor(),
                 lancamento.getFormaPagamento(),
                 lancamento.getDtHoraLancado(),
-                lancamento.getUser() != null ? lancamento.getUser().getId() : null,
-                lancamento.getUser() != null ? lancamento.getUser().getNome() : "Usuário excluído"
+                usuarioExiste ? lancamento.getUser().getId() : null,
+                usuarioExiste
+                        ? lancamento.getUser().getNome()
+                        : lancamento.getNomeUsuarioHistorico() + " (excluído)"
         );
     }
 }

@@ -35,7 +35,13 @@ public class LancamentoService {
         lancamento.setValor(request.getValor());
         lancamento.setFormaPagamento(request.getFormaPagamento());
         lancamento.setUser(usuarioLogado); // dono vem do token, nunca do request
+        lancamento.setNomeUsuarioHistorico(usuarioLogado.getNome());
 
+        lancamento.setFormaPagamento(
+                request.getFormaPagamento() != null
+                        ? request.getFormaPagamento().trim().toUpperCase()
+                        : null
+        );
         Lancamento salvo = lancamentoRepository.save(lancamento);
         return lancamentoMapper.toResponseDTO(salvo);
     }
@@ -57,12 +63,20 @@ public class LancamentoService {
         Lancamento lancamento = lancamentoRepository.findById(id)
                 .orElseThrow(() -> new LancamentoNotFoundException("Lançamento não encontrado"));
 
+
+
         validarDonoOuPastor(lancamento, usuarioLogado);
 
         lancamento.setTipo(request.getTipo());
         lancamento.setDescricao(request.getDescricao());
         lancamento.setValor(request.getValor());
         lancamento.setFormaPagamento(request.getFormaPagamento());
+
+        lancamento.setFormaPagamento(
+                request.getFormaPagamento() != null
+                        ? request.getFormaPagamento().trim().toUpperCase()
+                        : null
+        );
 
         Lancamento atualizado = lancamentoRepository.save(lancamento);
         return lancamentoMapper.toResponseDTO(atualizado);

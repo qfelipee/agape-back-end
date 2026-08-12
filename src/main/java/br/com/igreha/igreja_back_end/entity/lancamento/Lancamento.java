@@ -43,6 +43,9 @@ public class Lancamento {
     @Column(nullable = false, updatable = false)
     private LocalDateTime dtHoraLancado;
 
+    @Column(length = 100)
+    private String nomeUsuarioHistorico;
+
     @ManyToOne
     @JoinColumn(name = "fk_user", nullable = true)
     private User user;

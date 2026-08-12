@@ -3,12 +3,15 @@ package br.com.igreha.igreja_back_end.service.user;
 import br.com.igreha.igreja_back_end.dto.user.UserRegisterRequestDTO;
 import br.com.igreha.igreja_back_end.dto.user.UserResponseDTO;
 import br.com.igreha.igreja_back_end.dto.user.UserUpdateRequestDTO;
+import br.com.igreha.igreja_back_end.entity.lancamento.Lancamento;
 import br.com.igreha.igreja_back_end.entity.user.User;
 import br.com.igreha.igreja_back_end.exception.AccessDeniedCustomException;
 import br.com.igreha.igreja_back_end.exception.EmailAlreadyExistsException;
 import br.com.igreha.igreja_back_end.exception.UserNotFoundException;
 import br.com.igreha.igreja_back_end.mapper.user.UserMapper;
+import br.com.igreha.igreja_back_end.repository.lancamento.LancamentoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ public class UserService {
     private final br.com.igreha.igreja_back_end.repository.user.UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final LancamentoRepository lancamentoRepository;
 
     public UserResponseDTO register(UserRegisterRequestDTO request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -77,10 +81,17 @@ public class UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+
+        List<Lancamento> lancamentos = lancamentoRepository.findByUser_Id(id);
+        for (Lancamento l : lancamentos) {
+            l.setUser(null);
+        }
+        lancamentoRepository.saveAll(lancamentos);
+
         userRepository.delete(user);
     }
     public List<UserResponseDTO> listAll() {
-        return userRepository.findAll()
+        return userRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
                 .stream()
                 .map(userMapper::toResponseDTO)
                 .toList();

@@ -33,6 +33,7 @@ public class AuthService {
                 user.getId(),
                 token,
                 user.getNome(),
+                user.getFuncao(),
                 user.getEmail(),
                 user.getRole().name()
         );
